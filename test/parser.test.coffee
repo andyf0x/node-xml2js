@@ -353,6 +353,78 @@ module.exports =
       assert.notEqual err, null
       test.finish()
 
+  'test parseString() Processor errors are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: false, tagNameProcessors: [() -> throw Error('My bad function')]})
+    xmlString = "<goodXml>No problem here</goodXml>"
+    x2js.parseString xmlString, (err, result) ->
+      assert.equal err.message, 'My bad function'
+      assert.equal result, null
+      test.finish()
+
+  'test parseString() Processor errors in async mode are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: true, tagNameProcessors: [() -> throw Error('My bad function')]})
+    xmlString = "<goodXml>No problem here</goodXml>"
+    x2js.parseString xmlString, (err, result) ->
+      assert.equal err.message, 'My bad function'
+      assert.equal result, null
+      test.finish()
+
+  'test parseString() SAX errors are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: false})
+    xmlString = "<notGoodXml>Bad problem here</badXml>"
+    x2js.parseString xmlString, (err, result) ->
+      assert.notEqual err, null
+      assert.equal result, null
+      test.finish()
+
+  'test parseString() SAX errors in async mode are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: true})
+    xmlString = "<notGoodXml>Bad problem here</badXml>"
+    x2js.parseString xmlString, (err, result) ->
+      assert.notEqual err, null
+      assert.equal result, null
+      test.finish()
+
+  'test parseStringPromise() Processor errors are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: false, tagNameProcessors: [() -> throw Error('My bad function')]})
+    xmlString = "<goodXml>No problem here</goodXml>"
+    x2js.parseStringPromise xmlString
+    .then ->
+      test.fail('Should have returned error')
+    .catch (err) ->
+      assert.equal err.message, 'My bad function'
+      test.finish()
+
+  'test parseStringPromise() Processor errors in async mode are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: true, tagNameProcessors: [() -> throw Error('My bad function')]})
+    xmlString = "<goodXml>No problem here</goodXml>"
+    x2js.parseStringPromise xmlString
+    .then ->
+      test.fail('Should have returned error')
+    .catch (err) ->
+      assert.equal err.message, 'My bad function'
+      test.finish()
+
+  'test parseStringPromise() SAX errors are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: false})
+    xmlString = "<notGoodXml>Bad problem here</badXml>"
+    x2js.parseStringPromise xmlString
+    .then ->
+      test.fail('Should have returned error')
+    .catch (err) ->
+      assert.notEqual err, null
+      test.finish()
+
+  'test parseStringPromise() SAX errors in async mode are emitted correctly': (test) ->
+    x2js = new xml2js.Parser({async: true})
+    xmlString = "<notGoodXml>Bad problem here</badXml>"
+    x2js.parseStringPromise xmlString
+    .then ->
+      test.fail('Should have returned error')
+    .catch (err) ->
+      assert.notEqual err, null
+      test.finish()
+
   'test simple function without options': (test) ->
     fs.readFile fileName, (err, data) ->
       xml2js.parseString data, (err, r) ->
